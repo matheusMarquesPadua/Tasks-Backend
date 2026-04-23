@@ -1,8 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity; 
-using task.Src.Domain.Entities.Identity; 
+using Microsoft.AspNetCore.Identity;
+using task.Src.Domain.Entities.Identity;
+using task.Src.Application.Auth.Commands;
 
 namespace task.Src.API.Controllers;
 
@@ -17,6 +18,26 @@ public class UserController : ControllerBase
     {
         _mediator = mediator;
         _userManager = userManager;
+    }
+
+    [HttpPost("pre-register")]
+    public async Task<IActionResult> PreRegister([FromBody] PreRegisterCommand command)
+    {
+        var result = await _mediator.Send(command);
+        if (!result.Success)
+            return BadRequest(new { Message = result.Error });
+
+        return Ok(new { Message = "E-mail de confirmação enviado." });
+    }
+
+    [HttpPost("confirm-and-set-password")]
+    public async Task<IActionResult> ConfirmAndSetPassword([FromBody] ConfirmAndSetPasswordCommand command)
+    {
+        var result = await _mediator.Send(command);
+        if (!result.Success)
+            return BadRequest(new { Message = result.Error });
+
+        return Ok(new { Message = "Conta confirmada com sucesso! Você já pode fazer login." });
     }
 
     [HttpPost("assign-role")]
@@ -34,7 +55,6 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetMe()
     {
         var user = await _userManager.GetUserAsync(User);
-
         if (user == null) return NotFound(new { Message = "Usuário não encontrado." });
 
         var roles = await _userManager.GetRolesAsync(user);

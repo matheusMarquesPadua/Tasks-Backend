@@ -2,7 +2,7 @@
 
 public class BaseId <TId>
 {
-    public TId Id { get; set; }
+    public TId? Id { get; set; }
 }
 
 public abstract class BaseId : BaseId<int>

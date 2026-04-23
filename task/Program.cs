@@ -5,6 +5,9 @@ using task.Src.Infrastructure.Data.Context;
 using Scalar.AspNetCore;
 using task.Src.Domain.Entities.Identity;
 using MediatR;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using task.Src.Infrastructure.Services.Email;
+using task.Src.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +29,16 @@ builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
     .AddRoles<IdentityRole<int>>()
     .AddEntityFrameworkStores<AppDbContext>();
+
+// Configuração de E-mail
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+// Configuração de App
+builder.Services.Configure<AppSettings>(
+    builder.Configuration.GetSection("AppSettings"));
+
 
 // CORS - Essencial para o Vue.js (Vite) na porta 5173
 builder.Services.AddCors(options =>

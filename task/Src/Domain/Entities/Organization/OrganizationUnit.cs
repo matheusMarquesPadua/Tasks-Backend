@@ -4,7 +4,7 @@ namespace task.Src.Domain.Entities.Organization;
 
 public class OrganizationUnit : BaseEntity
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
 
     public int? ParentUnitId { get; set; }

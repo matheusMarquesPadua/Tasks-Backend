@@ -7,16 +7,16 @@ using task.Src.Domain.Entities.Organization;
 
 namespace task.Src.Infrastructure.Data.Context;
 
-    public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
+public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+    public DbSet<OrganizationUnit> OrganizationUnits { get; set; }
+    public DbSet<UserUnitRole> UserUnitRoles { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        public AppDbContext (DbContextOptions<AppDbContext> options) : base(options) { }
-
-        public DbSet<OrganizationUnit> OrganizationUnits { get; set; }
-        public DbSet<UserUnitRole> UserUnitRoles { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
+        base.OnModelCreating(builder);
 
         builder.Entity<OrganizationUnit>()
             .HasMany(o => o.Children)
@@ -33,26 +33,21 @@ namespace task.Src.Infrastructure.Data.Context;
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<UserUnitRole>()
-            .HasOne(ur => ur.organizationUnit)
+            .HasOne(ur => ur.OrganizationUnit)
             .WithMany()
             .HasForeignKey(ur => ur.OrganizationUnitId)
             .OnDelete(DeleteBehavior.Cascade);
-        }
-
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
-            {
-                if (entry.State == EntityState.Added)
-                {
-                    entry.Entity.CreatedAt = DateTime.UtcNow;
-                }
-                else if(entry.State == EntityState.Modified)
-                {
-                    entry.Entity.UpdatedAt = DateTime.UtcNow;
-                }
-            }
-            return base.SaveChangesAsync(cancellationToken);
-        }
-
     }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+        {
+            if (entry.State == EntityState.Added)
+                entry.Entity.CreatedAt = DateTime.UtcNow;
+            else if (entry.State == EntityState.Modified)
+                entry.Entity.UpdatedAt = DateTime.UtcNow;
+        }
+        return base.SaveChangesAsync(cancellationToken);
+    }
+}
