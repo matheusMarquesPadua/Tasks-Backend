@@ -13,6 +13,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
 
     public DbSet<OrganizationUnit> OrganizationUnits { get; set; }
     public DbSet<UserUnitRole> UserUnitRoles { get; set; }
+    public DbSet<TaskItem> TaskItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

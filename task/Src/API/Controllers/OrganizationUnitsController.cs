@@ -1,6 +1,8 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using task.Src.Application.OrganizationUnits.Commands;
+using task.Src.Application.OrganizationUnits.Queries;
 
 namespace task.Src.API.Controllers;
 
@@ -23,5 +25,14 @@ public class OrganizationUnitsController : ControllerBase
             Mesage = "Setor criado com sucesso",
             OrganizationUnitId = resultId
         });
+    }
+
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetAll()
+    {
+        var query = new GetAllOrganizationUnitsQuery();
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 }
