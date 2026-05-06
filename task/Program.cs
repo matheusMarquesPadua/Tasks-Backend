@@ -6,6 +6,7 @@ using Scalar.AspNetCore;
 using task.Src.Domain.Entities.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.OpenApi;
 using task.Src.Infrastructure.Services.Email;
 using task.Src.Infrastructure.Services;
 
@@ -53,7 +54,33 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi(); // .NET 10 OpenAPI
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        // 1. Define o esquema de segurança (Cadeado)
+        var scheme = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "Insira o Token JWT gerado no /login"
+        };
+
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = scheme;
+
+        // 2. Aplica a exigência de segurança globalmente no documento
+        document.Security ??= new List<OpenApiSecurityRequirement>();
+        document.Security.Add(new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
+        });
+
+        return Task.CompletedTask;
+    });
+});
 
 var app = builder.Build();
 

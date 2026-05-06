@@ -254,11 +254,11 @@ namespace task.Src.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("task.Src.Domain.Entities.Organization.UserUnitRole", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("CanAssignTasks")
                         .HasColumnType("boolean");
@@ -273,13 +273,61 @@ namespace task.Src.Infrastructure.Data.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.HasIndex("OrganizationUnitId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("UserUnitRoles");
+                });
+
+            modelBuilder.Entity("task.Src.Domain.Entities.Tasks.TaskItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AssignedUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeleteAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("Status")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TaskItems");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -345,7 +393,7 @@ namespace task.Src.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("task.Src.Domain.Entities.Organization.UserUnitRole", b =>
                 {
-                    b.HasOne("task.Src.Domain.Entities.Organization.OrganizationUnit", "organizationUnit")
+                    b.HasOne("task.Src.Domain.Entities.Organization.OrganizationUnit", "OrganizationUnit")
                         .WithMany()
                         .HasForeignKey("OrganizationUnitId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -357,9 +405,9 @@ namespace task.Src.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("OrganizationUnit");
 
-                    b.Navigation("organizationUnit");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("task.Src.Domain.Entities.Organization.OrganizationUnit", b =>

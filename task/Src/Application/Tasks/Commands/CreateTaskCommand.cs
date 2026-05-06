@@ -14,7 +14,7 @@ public record CreateTaskCommand(
     int CreatedByUserId
 ) : IRequest<int>;
 
-public class CreateTaskCommandHandler : IRequesteHandler<CreateTaskCommand, int>
+public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, int>
 {
     private readonly AppDbContext _context;
 
@@ -23,9 +23,9 @@ public class CreateTaskCommandHandler : IRequesteHandler<CreateTaskCommand, int>
         _context = context;
     }
 
-    public async System.Threading.Tasks.Task<int> Handle(CreateTaskCommand request, CancelationToken cancelationToken)
+    public async System.Threading.Tasks.Task<int> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
     {
-        new newTask = new TaskItem
+        var newTask = new TaskItem
         {
             Title = request.Title,
             Description = request.Description,
@@ -34,12 +34,12 @@ public class CreateTaskCommandHandler : IRequesteHandler<CreateTaskCommand, int>
             EndDate = null,
             OrganizationId = request.OrganizationId,
             AssignedUserId = request.AssignedUserId,
-            CreateByUserId = request.CreatedByUserId,
+            CreatedByUserId = request.CreatedByUserId,
         };
 
         _context.TaskItems.Add(newTask);
 
-        await _context.SaveChangesAsync(cancelationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return newTask.Id;
     }

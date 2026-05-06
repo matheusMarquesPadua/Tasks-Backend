@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using task.Src.Domain.Common;
 using task.Src.Domain.Entities.Identity;
 using task.Src.Domain.Entities.Organization;
+using task.Src.Domain.Entities.Tasks;
 
 namespace task.Src.Infrastructure.Data.Context;
 
