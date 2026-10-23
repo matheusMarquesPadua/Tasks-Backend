@@ -9,21 +9,12 @@ namespace task.Src.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController : ControllerBase
+public class UserController(IMediator mediator, UserManager<ApplicationUser> userManager) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly UserManager<ApplicationUser> _userManager;
-
-    public UserController(IMediator mediator, UserManager<ApplicationUser> userManager)
-    {
-        _mediator = mediator;
-        _userManager = userManager;
-    }
-
     [HttpPost("pre-register")]
     public async Task<IActionResult> PreRegister([FromBody] PreRegisterCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         if (!result.Success)
             return BadRequest(new { Message = result.Error });
 
@@ -33,7 +24,7 @@ public class UserController : ControllerBase
     [HttpPost("confirm-and-set-password")]
     public async Task<IActionResult> ConfirmAndSetPassword([FromBody] ConfirmAndSetPasswordCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         if (!result.Success)
             return BadRequest(new { Message = result.Error });
 
@@ -43,7 +34,7 @@ public class UserController : ControllerBase
     [HttpPost("assign-role")]
     public async Task<IActionResult> AssignRole([FromBody] AssignUserRoleCommand command)
     {
-        var success = await _mediator.Send(command);
+        var success = await mediator.Send(command);
         if (!success)
             return NotFound(new { Message = "Usuário não encontrado." });
 
@@ -54,10 +45,10 @@ public class UserController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetMe()
     {
-        var user = await _userManager.GetUserAsync(User);
+        var user = await userManager.GetUserAsync(User);
         if (user == null) return NotFound(new { Message = "Usuário não encontrado." });
 
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = await userManager.GetRolesAsync(user);
 
         return Ok(new
         {

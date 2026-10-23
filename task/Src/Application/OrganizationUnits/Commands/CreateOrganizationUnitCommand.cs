@@ -6,6 +6,7 @@ using task.Src.Infrastructure.Data.Context;
 namespace task.Src.Application.OrganizationUnits.Commands;
 
 public record CreateOrganizationUnitCommand(string Name, int? ParentUnitId) : IRequest<int>;
+
 public class CreateOrganizationUnitCommandHandler : IRequestHandler<CreateOrganizationUnitCommand, int>
 {
     private readonly AppDbContext _context;

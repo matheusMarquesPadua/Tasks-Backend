@@ -13,18 +13,11 @@ public class OrganizationUnitResponse
 
 public record GetAllOrganizationUnitsQuery : IRequest<List<OrganizationUnitResponse>>;
 
-public class GetAllOrganizationUnitsHandler : IRequestHandler<GetAllOrganizationUnitsQuery, List<OrganizationUnitResponse>>
+public class GetAllOrganizationUnitsHandler(AppDbContext context) : IRequestHandler<GetAllOrganizationUnitsQuery, List<OrganizationUnitResponse>>
 {
-    private readonly AppDbContext _context;
-
-    public GetAllOrganizationUnitsHandler(AppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<List<OrganizationUnitResponse>> Handle(GetAllOrganizationUnitsQuery request, CancellationToken cancellationToken)
     {
-        return await _context.OrganizationUnits
+        return await context.OrganizationUnits
             .AsNoTracking()
             .Select(o => new OrganizationUnitResponse
             {

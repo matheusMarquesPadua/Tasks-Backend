@@ -25,7 +25,8 @@ public class GetAllTasksQueryHandler : IRequestHandler<GetAllTasksQuery, List<Ta
 
     public async System.Threading.Tasks.Task<List<TaskResponse>> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)
     {
-        return await _context.TaskItems.AsNoTracking()
+        return await _context.TaskItems
+            .AsNoTracking()
             .Select(t => new TaskResponse
             {
                 Id = t.Id,
@@ -48,7 +49,8 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskRes
 
     public async System.Threading.Tasks.Task<TaskResponse?> Handle(GetTaskByIdQuery request, CancellationToken cancellationToken)
     {
-        return await _context.TaskItems.AsNoTracking()
+        return await _context.TaskItems
+            .AsNoTracking()
             .Where(t => t.Id == request.Id)
             .Select(t => new TaskResponse
             {

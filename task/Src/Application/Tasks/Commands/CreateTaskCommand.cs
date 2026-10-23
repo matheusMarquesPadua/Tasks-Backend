@@ -14,15 +14,8 @@ public record CreateTaskCommand(
     int CreatedByUserId
 ) : IRequest<int>;
 
-public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, int>
+public class CreateTaskCommandHandler(AppDbContext context) : IRequestHandler<CreateTaskCommand, int>
 {
-    private readonly AppDbContext _context;
-
-    public CreateTaskCommandHandler(AppDbContext context)
-    {
-        _context = context;
-    }
-
     public async System.Threading.Tasks.Task<int> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
     {
         var newTask = new TaskItem
@@ -37,9 +30,9 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, int>
             CreatedByUserId = request.CreatedByUserId,
         };
 
-        _context.TaskItems.Add(newTask);
+        context.TaskItems.Add(newTask);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         return newTask.Id;
     }

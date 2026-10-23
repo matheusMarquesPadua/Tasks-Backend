@@ -12,25 +12,15 @@ namespace task.Src.Application.Auth.Commands;
 public record PreRegisterCommand(string Email) : IRequest<PreRegisterResult>;
 public record PreRegisterResult(bool Success, string? Error = null);
 
-public class PreRegisterHandler : IRequestHandler<PreRegisterCommand, PreRegisterResult>
+public class PreRegisterHandler(
+    UserManager<ApplicationUser> userManager,
+    IEmailSender emailSender,
+    IOptions<AppSettings> appSettings
+) : IRequestHandler<PreRegisterCommand, PreRegisterResult>
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IEmailSender _emailSender;
-    private readonly AppSettings _appSettings;
-
-    public PreRegisterHandler(
-        UserManager<ApplicationUser> userManager,
-        IEmailSender emailSender,
-        IOptions<AppSettings> appSettings)
-    {
-        _userManager = userManager;
-        _emailSender = emailSender;
-        _appSettings = appSettings.Value;
-    }
-
     public async Task<PreRegisterResult> Handle(PreRegisterCommand request, CancellationToken cancellationToken)
     {
-        var existingUser = await _userManager.FindByEmailAsync(request.Email);
+        var existingUser = await userManager.FindByEmailAsync(request.Email);
         if (existingUser != null)
             return new PreRegisterResult(false, "Email já cadastrado.");
 
@@ -40,16 +30,16 @@ public class PreRegisterHandler : IRequestHandler<PreRegisterCommand, PreRegiste
             Email = request.Email
         };
 
-        var result = await _userManager.CreateAsync(user);
+        var result = await userManager.CreateAsync(user);
         if (!result.Succeeded)
             return new PreRegisterResult(false, result.Errors.First().Description);
 
-        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-        var confirmLink = $"{_appSettings.FrontendUrl}/confirm-account?userId={user.Id}&token={encodedToken}";
+        var confirmLink = $"{appSettings.Value.FrontendUrl}/confirm-account?userId={user.Id}&token={encodedToken}";
 
-        await _emailSender.SendEmailAsync(
+        await emailSender.SendEmailAsync(
             request.Email,
             "Confirme seu cadastro",
             $@"<h2>Bem-vindo ao Task App!</h2>
