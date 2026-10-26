@@ -37,7 +37,7 @@ public class PreRegisterHandler(
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-        var confirmLink = $"{appSettings.Value.FrontendUrl}/confirm-account?userId={user.Id}&token={encodedToken}";
+        var confirmLink = $"{appSettings.Value.FrontendUrl}/confirm-account?email={request.Email}&token={encodedToken}";
 
         await emailSender.SendEmailAsync(
             request.Email,

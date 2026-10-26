@@ -7,7 +7,7 @@ using task.Src.Domain.Entities.Identity;
 namespace task.Src.Application.Auth.Commands;
 
 public record ConfirmAndSetPasswordCommand(
-    int UserId,
+    string email,
     string Token,
     string Password,
     string ConfirmPassword
@@ -22,7 +22,7 @@ public class ConfirmAndSetPasswordHandler (UserManager<ApplicationUser> userMana
         if (request.Password != request.ConfirmPassword)
             return new ConfirmAndSetPasswordResult(false, "As senhas não coincidem.");
 
-        var user = await userManager.FindByIdAsync(request.UserId.ToString());
+        var user = await userManager.FindByEmailAsync(request.email);
         if (user == null)
             return new ConfirmAndSetPasswordResult(false, "Usuário não encontrado.");
 
