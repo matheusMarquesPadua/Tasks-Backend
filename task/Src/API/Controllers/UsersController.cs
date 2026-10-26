@@ -11,6 +11,15 @@ namespace task.Src.API.Controllers;
 [Route("api/[controller]")]
 public class UserController(IMediator mediator, UserManager<ApplicationUser> userManager) : ControllerBase
 {
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginCommand command)
+    {
+        var result = await mediator.Send(command);
+        if (!result.Success)
+            return Unauthorized(new { Message = result.ErrorMessage });
+        return Ok(new { Token = result.Token });
+    }
+
     [HttpPost("pre-register")]
     public async Task<IActionResult> PreRegister([FromBody] PreRegisterCommand command)
     {

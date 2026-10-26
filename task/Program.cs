@@ -1,13 +1,16 @@
+using System.Text;
 using Microsoft.AspNetCore.Identity;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
-using task.Src.Infrastructure.Data.Context;
-using Scalar.AspNetCore;
-using task.Src.Domain.Entities.Identity;
-using MediatR;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.OpenApi;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Scalar.AspNetCore;
+using MediatR;
+using task.Src.Infrastructure.Data.Context;
 using task.Src.Infrastructure.Services.Email;
+using task.Src.Domain.Entities.Identity;
 using task.Src.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,12 +27,33 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Progr
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Configuração de Identidade (Auth)
-// O .NET 10 facilita muito o login para SPAs (Vue.js)
+builder.Services.AddIdentity < ApplicationUser, IdentityRole<int>>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SecretKey"] ?? "UmaChaveSuperSecretaMuitoLongaParaOJWTFuncionar");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+ {
+     options.RequireHttpsMetadata = false; // false = Permite HTTP para desenvolvimento (não recomendado para produção)
+     options.SaveToken = true;
+     options.TokenValidationParameters = new TokenValidationParameters
+     {
+         ValidateIssuerSigningKey = true,
+         IssuerSigningKey = new SymmetricSecurityKey(key),
+         ValidateIssuer = false,
+         ValidateAudience = false,
+         ClockSkew = TimeSpan.Zero // Remove o tempo de tolerância para expiração do token
+     };
+ });
+
 builder.Services.AddAuthorization();
-builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
-    .AddRoles<IdentityRole<int>>()
-    .AddEntityFrameworkStores<AppDbContext>();
+
 
 // Configuração de E-mail
 builder.Services.Configure<EmailSettings>(
@@ -108,8 +132,6 @@ app.UseAuthorization();
 
 // Este comando cria automaticamente os endpoints de JSON:
 // /register, /login, /refresh, /confirmEmail, etc.
-app.MapIdentityApi<ApplicationUser>();
-
 app.MapControllers();
 
 app.Run();
