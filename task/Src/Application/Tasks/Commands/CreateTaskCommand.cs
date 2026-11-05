@@ -7,6 +7,7 @@ namespace task.Src.Application.Tasks.Commands;
 public record CreateTaskCommand(
     string Title,
     string Description,
+    bool? Status,
     DateTime? StartDate,
     DateTime? EndDate,
     int OrganizationId,
@@ -16,15 +17,15 @@ public record CreateTaskCommand(
 
 public class CreateTaskCommandHandler(AppDbContext context) : IRequestHandler<CreateTaskCommand, int>
 {
-    public async System.Threading.Tasks.Task<int> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
     {
         var newTask = new TaskItem
         {
             Title = request.Title,
             Description = request.Description,
-            Status = null,
-            StartDate = null,
-            EndDate = null,
+            Status = request.Status,
+            StartDate = request.StartDate,
+            EndDate = request.EndDate,
             OrganizationId = request.OrganizationId,
             AssignedUserId = request.AssignedUserId,
             CreatedByUserId = request.CreatedByUserId,

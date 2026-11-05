@@ -1,17 +1,24 @@
 using System.Text;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.OpenApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+
 using Scalar.AspNetCore;
 using MediatR;
+using FluentValidation;
+
+using task.Src.API.Middlewares;
 using task.Src.Infrastructure.Data.Context;
 using task.Src.Infrastructure.Services.Email;
 using task.Src.Domain.Entities.Identity;
 using task.Src.Infrastructure.Services;
+using task.Src.Application.Common.Behaviors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +29,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Configuração do PostgreSQL
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+builder.Services.AddMediatR(cfg =>
+    {
+        cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+        cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+
+    });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddIdentity < ApplicationUser, IdentityRole<int>>()
     .AddEntityFrameworkStores<AppDbContext>()
@@ -112,6 +129,8 @@ var app = builder.Build();
 // 2. PIPELINE DE REQUISIÇÕES (Middlewares)
 // ----------------------------------------------------------------
 
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
