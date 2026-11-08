@@ -19,9 +19,6 @@ public class ConfirmAndSetPasswordHandler (UserManager<ApplicationUser> userMana
 {
     public async Task<ConfirmAndSetPasswordResult> Handle(ConfirmAndSetPasswordCommand request, CancellationToken cancellationToken)
     {
-        if (request.Password != request.ConfirmPassword)
-            return new ConfirmAndSetPasswordResult(false, "As senhas não coincidem.");
-
         var user = await userManager.FindByEmailAsync(request.email);
         if (user == null)
             return new ConfirmAndSetPasswordResult(false, "Usuário não encontrado.");
