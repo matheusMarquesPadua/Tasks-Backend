@@ -2,9 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using task.Src.Domain.Entities.Identity;
 using task.Src.Application.Auth.Commands;
-
+using task.Src.Domain.Entities.Identity;
 namespace task.Src.API.Controllers;
 
 [ApiController]
