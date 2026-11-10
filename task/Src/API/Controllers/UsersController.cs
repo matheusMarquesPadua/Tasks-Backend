@@ -38,8 +38,9 @@ public class UserController(IMediator mediator, UserManager<ApplicationUser> use
 
         return Ok(new { Message = "Conta confirmada com sucesso! Você já pode fazer login." });
     }
-
+    
     [HttpPost("assign-role")]
+    //[Authorize(Roles = "Admin")]
     public async Task<IActionResult> AssignRole([FromBody] AssignUserRoleCommand command)
     {
         var success = await mediator.Send(command);
