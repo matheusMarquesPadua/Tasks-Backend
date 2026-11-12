@@ -24,9 +24,11 @@ public class PreRegisterHandler(
         if (existingUser != null)
             return new PreRegisterResult(false, "Email já cadastrado.");
 
+        var extractedUserName = request.Email.Split('@')[0];
+
         var user = new ApplicationUser
         {
-            UserName = request.Email,
+            UserName = extractedUserName,
             Email = request.Email
         };
 
